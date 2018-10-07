@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
+set(SOURCE_NAME
+        main.cpp
+        convert.cpp
+        convert.hpp)
+
 function(Flag flag init_flag flag_message)
     if(NOT DEFINED ${flag})
         set(${flag} ${init_flag} CACHE BOOL "${flag_message} : true or false" FORCE)
@@ -27,8 +32,7 @@ set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 
 #ビルドの対象と実行ファイル名
-add_executable(${PROJECT_NAME}
-                   convert.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_NAME})
 
 #Boostライブラリを探す
 if(USE_Boost)
