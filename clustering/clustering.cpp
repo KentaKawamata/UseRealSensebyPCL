@@ -1,5 +1,6 @@
 //
 // Created by kawa on 10/8/18.
+// http://pointclouds.org/documentation/tutorials/region_growing_segmentation.php#region-growing-segmentation
 //
 #include <iostream>
 #include <vector>
@@ -72,14 +73,11 @@ int main(int argc, char** argv) {
     }
     std::cout << std::endl;
 
+    //https://stackoverflow.com/questions/44921987/removing-points-from-a-pclpointcloudpclpointxyzrgb
+
     pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = reg.getColoredCloud();
     pcl::PointCloud <pcl::PointXYZRGB>::Ptr extracted_cloud;
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
-
-    //pcl::visualization::CloudViewer viewer1("Cluster viewer1");
-    //viewer1.showCloud(colored_cloud);
-    //while(!viewer1.wasStopped ()) {
-    //}
 
     std::cout << "Num of Points : " << colored_cloud->points.size() << std::endl;
     int i=0;
@@ -93,7 +91,6 @@ int main(int argc, char** argv) {
             while(num<clusters[i].indices.size()) {
 
                 inliers->indices.push_back(clusters[i].indices[num]);
-                //extracted_cloud->points.[clusters[i].indices[num] = ;
                 num++;
             }
         }
@@ -113,65 +110,3 @@ int main(int argc, char** argv) {
 
     return (0);
 }
-
-/*
-int main(int argc, char *argv[]) {
-
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr segmented (new pcl::PointCloud<pcl::PointXYZRGB>);
-    //pcl::io::loadPLYFile (".ply", *segmented);
-    pcl::io::loadPCDFile ("./../downSampling/pcdFile/test_pcd.pcd", *segmented);
-
-    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree <pcl::PointXYZRGB>);
-    //treeにsegmentedの点群データを格納
-    tree->setInputCloud(segmented);
-
-    std::vector <pcl::PointIndices> cluster_indices;
-    pcl::EuclideanClusterExtraction <pcl::PointXYZRGB> clustering;
-    clustering.setClusterTolerance(0.03);
-    clustering.setMinClusterSize(1000);
-    clustering.setMaxClusterSize(300000);
-    clustering.setSearchMethod(tree);
-    clustering.setInputCloud(segmented);
-    //<setInputCloud(), setIndices()>によって与えられたPointCloudにおけるクラスタの抽出を行う
-    //cluster_indicesにクラスタリングしたポイントクラスタを与えている
-    //http://docs.pointclouds.org/1.7.1/classpcl_1_1_euclidean_cluster_extraction.html#a41e0cd5e3f7967d59013c967c909585c
-    clustering.extract(cluster_indices);
-
-    //PCLの主な単位系...m(メートル)?
-    int j=0;
-    std::vector<pcl::PointIndices>::const_iterator it;
-    pcl::PCDWriter writer;
-
-    for(it=cluster_indices.begin(); it!=cluster_indices.end(); ++it) {
-        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_cluster(new pcl::PointCloud<pcl::PointXYZRGB>);
-        std::vector<int>::const_iterator pit;
-
-        for(pit=it->indices.begin(); pit!=it->indices.end(); ++pit) {
-            cloud_cluster->points.push_back(segmented->points[*pit]);
-        }
-        cloud_cluster->width = cloud_cluster->points.size ();
-        cloud_cluster->height = 1;
-        cloud_cluster->is_dense = true;
-
-        std::cout << "PointCloud representing the Cluster: " << cloud_cluster->points.size () << " data points." << std::endl;
-        std::stringstream ss;
-        ss << "cloud_cluster_" << j << ".pcd";
-        writer.write<pcl::PointXYZRGB> (ss.str (), *cloud_cluster, false); //*
-        j++;
-    }
-
-    //pcl::PointCloud<pcl::PointXYZRGB>::Ptr result = pcl::PointCloud<pcl::PointXYZRGB>::Ptr( new pcl::PointCloud<pcl::PointXYZRGB>() );
-    //pcl::ExtractIndices <pcl::PointXYZRGB> extract;
-    //extract.setInputCloud(segmented);
-    //pcl::IndicesPtr indices(new pcl::PointIndices);
-    //*indices = cluster_indices[0].indices;
-    //extract.setIndices(indices);
-    //extract.setNegative(false);
-    //extract.filter(*result);
-
-    pcl::io::savePCDFileASCII("testClustered.pcd", *result);
-    std::cerr << " Saved to PLY file" << std::endl;
-
-    return 0;
-}
-*/

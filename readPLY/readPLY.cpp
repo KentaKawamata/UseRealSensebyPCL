@@ -4,7 +4,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <iostream>
 #include <pcl/io/io.h>
-//#include <pcl/io/pcd_io.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 
 int user_data;
@@ -33,7 +33,8 @@ void viewerPsycho (pcl::visualization::PCLVisualizer& viewer) {
 
 int main(char argc, char *argv[]) {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::io::loadPLYFile ("_2354.ply", *cloud);
+   // pcl::io::loadPLYFile ("_2354.ply", *cloud);
+   pcl::io::loadPCDFile ("./../RemoveNoise/test_lms400_inliers.pcd", *cloud);
 
     pcl::visualization::CloudViewer viewer("Cloud Viewer");
 
