@@ -31,8 +31,10 @@ private:
 
     cv::Mat color_mat_;
     cv::Mat depth_mat_;
-    int width_ = 640;
-    int height_ = 480;
+    int color_width_ = 640;
+    int color_height_ = 480;
+    int depth_width_ = 640;
+    int depth_height_ = 480;
     int fps_ = 30;
 
     //colorとdepthのframe合わせ

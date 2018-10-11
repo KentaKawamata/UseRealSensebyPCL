@@ -22,8 +22,8 @@ void ConvertPCL::startSenser(){
 
     // Set Device Config
     rs2::config config;
-    config.enable_stream(rs2_stream::RS2_STREAM_COLOR, width_, height_, rs2_format::RS2_FORMAT_BGR8, fps_);
-    config.enable_stream(rs2_stream::RS2_STREAM_DEPTH, width_, height_, rs2_format::RS2_FORMAT_Z16, fps_);
+    config.enable_stream(rs2_stream::RS2_STREAM_COLOR, color_width_, color_height_, rs2_format::RS2_FORMAT_BGR8, fps_);
+    config.enable_stream(rs2_stream::RS2_STREAM_DEPTH, depth_width_, depth_height_, rs2_format::RS2_FORMAT_Z16, fps_);
 
     pipeline_profile = pipeline.start(config);
 }
@@ -36,14 +36,16 @@ void ConvertPCL::updateFrame() {
     depth_frame = frameset.get_depth_frame().apply_filter(color_map);
 
     // Retrive Frame Size
-    width_ = color_frame.as<rs2::video_frame>().get_width();
-    height_ = color_frame.as<rs2::video_frame>().get_height();
+    color_width_ = color_frame.as<rs2::video_frame>().get_width();
+    color_height_ = color_frame.as<rs2::video_frame>().get_height();
+    depth_width_ = depth_frame.as<rs2::video_frame>().get_width();
+    depth_height_ = depth_frame.as<rs2::video_frame>().get_height();
 }
 
 void ConvertPCL::draw() {
 
-    color_mat_ = cv::Mat(height_, width_, CV_8UC3, const_cast<void *>(color_frame.get_data()));
-    depth_mat_ = cv::Mat(height_, width_, CV_8UC3, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
+    color_mat_ = cv::Mat(color_height_, color_width_, CV_8UC3, const_cast<void *>(color_frame.get_data()));
+    depth_mat_ = cv::Mat(depth_height_, depth_width_, CV_8UC3, (void*)depth_frame.get_data(), cv::Mat::AUTO_STEP);
 }
 
 void ConvertPCL::show() {
