@@ -14,14 +14,14 @@
 #include <pcl/Vertices.h>
 
 
-float Volume(Vector p1, Vector p2, Vector p3) {
+float Volume(float p1, float p2, float p3) {
 
-    v321 = p3.X*p2.Y*p1.Z;
-    v231 = p2.X*p3.Y*p1.Z;
-    var v312 = p3.X*p1.Y*p2.Z;
-    var v132 = p1.X*p3.Y*p2.Z;
-    var v213 = p2.X*p1.Y*p3.Z;
-    var v123 = p1.X*p2.Y*p3.Z;
+    float v321 = p3.X*p2.Y*p1.Z;
+    float v231 = p2.X*p3.Y*p1.Z;
+    float v312 = p3.X*p1.Y*p2.Z;
+    float v132 = p1.X*p3.Y*p2.Z;
+    float v213 = p2.X*p1.Y*p3.Z;
+    float v123 = p1.X*p2.Y*p3.Z;
 
     return (1.0f/6.0f)*(-v321 + v231 + v312 - v132 - v213 + v123);
 }
@@ -29,28 +29,33 @@ float Volume(Vector p1, Vector p2, Vector p3) {
 int main(int argc, char *argv[]) {
 
     /*
+     *
      * http://www.pcl-users.org/How-do-I-retrieve-the-vertices-in-a-PolygonMesh-td4045663.html
      *
-     * 私はクラウドからPolygonMeshを生成し、
-     * メッシュ内のポイントはクラウドのポイントに従いません
-     * だから私はメッシュの "クラウド"メンバーのポイントにアクセスしようとしましたが、
-     * これはPointCloud2です。このために私はfromPCLPointCloud2を使って
-     * 普通の雲。しかし、私にはわからない現象があります
-     * 正しいことをした。
+     * 私はクラウドからPolygonMeshを生成しました.
+     * メッシュ内のインデックスはクラウドのインデックスと一致しません.
      *
-     * ポイントの頂点座標を取得する正しい方法は何ですか？
-     * メッシュ（ "polygon.vertices"配列でアクセスされる）？
-     * >私はクラウドからPolygonMeshを生成し、
-     * >メッシュ内のポイントはクラウド内のポイントに従いません。
-     * これは驚くべきことではありません。生の点からサーフェスを推定しています
-     * データと私はすべてのメソッドを使用する必要があるとは思わない
-     * 元のポイントクラウドのポイント。
+     * だから私はメッシュの "クラウド"メンバーのポイントにアクセスしようとしましたが,これはPointCloud2です.
+     * このために私はfromPCLPointCloud2を使いましたが,普通のクラウドを得ました.
+     * しかし、私にはわからない現象があります.
+     *
+     * - ポイントの頂点座標を取得する正しい方法は何ですか?
+     * - メッシュ("polygon.vertices"配列でアクセスされる)?
+     *
+     * >私はクラウドからPolygonMeshを生成しました.
+     * >メッシュ内のインデックスはクラウドのインデックスと一致しません.
+     *
+     *  これは驚くべきことではありません.生の点からサーフェスを推定しています
+     *  元のポイントクラウドのすべての点を使用するメソッドを強制する必要はないと思います.
+     *
      * >点の頂点座標を取得する正しい方法は何ですか？
-     * > mesh（ "polygon.vertices"配列でアクセスされる）？
-     * >ポリゴンはstd :: vector <std :: vector <uint32_t >>です。そう：
-     * ポリゴン[0] - は最初のポリゴンです
-     * ポリゴン[0][0] - 最初のポリゴンの最初の点です。
-     * これらのインデックスは、クラウド内のポイントの順番と一致します。
+     * > mesh("polygon.vertices"配列でアクセスされる)?
+     * >ポリゴンはstd::vector<std::vector<uint32_t >>です.
+     *
+     *  ポリゴン[0] - 最初のポリゴンです
+     *  ポリゴン[0][0] - 最初のポリゴンの最初の点です。
+     *  これらのインデックスは、クラウド内のポイントのインデックスと一致します。
+     *
      * 私は完全に理解しています。
      * 私の2番目の質問は、クラウド内のポイントにアクセスすることでした（私はインデックスを取得する方法を知っていました）。
      * 今私はfromPCLPointCloud2を使うことができ、
@@ -63,19 +68,29 @@ int main(int argc, char *argv[]) {
     pcl::PolygonMesh mesh;
     pcl::io::loadPolygonFileVTK("", mesh);
 
-    //https://stackoverflow.com/questions/43719848/how-to-access-a-point-in-the-type-of-pclpointcloud2
-    // conversion
+    /*
+     * https://stackoverflow.com/questions/43719848/how-to-access-a-point-in-the-type-of-pclpointcloud2
+     * conversion
+     */
     pcl::PointCloud<pcl::PointXYZ>::Ptr vertices( new pcl::PointCloud<pcl::PointXYZ> );
-    pcl::fromPCLPointCloud2( mesh.cloud, *vertices );
+
+    /*
+     * http://www.pcl-users.org/fromPCLPointCloud2-questions-td4039472.html
+     * mesh構造の配列では,メッシュの頂点はPointCloud2に格納されている.
+     * pcl::fromPCLPointCloud2()によって頂点のインデックスをPointCloud2配列からPointCloudにコピーする.
+     * PointCloud2とPointCloudのインデックス構造は一致している.
+     *
+     */
+    pcl::fromPCLPointCloud2(mesh.cloud, *vertices);
 
     // access each vertex
-    for( int idx = 0; idx < vertices->size(); idx++ ) {
+    for(int i=0; i<vertices->size(); i++) {
 
-        pcl::PointXYZ v = vertices->points[ idx ];
+        pcl::PointXYZ v = vertices->points[i];
 
-        float x = v._PointXYZ::data[ 0 ];
-        float y = v._PointXYZ::data[ 1 ];
-        float z = v._PointXYZ::data[ 2 ];
+        float x = v._PointXYZ::data[0];
+        float y = v._PointXYZ::data[1];
+        float z = v._PointXYZ::data[2];
     }
 
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));

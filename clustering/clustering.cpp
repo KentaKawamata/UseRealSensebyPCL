@@ -74,10 +74,14 @@ int main(int argc, char** argv) {
     std::cout << std::endl;
 
     //https://stackoverflow.com/questions/44921987/removing-points-from-a-pclpointcloudpclpointxyzrgb
-
     pcl::PointCloud <pcl::PointXYZRGB>::Ptr colored_cloud = reg.getColoredCloud();
     pcl::PointCloud <pcl::PointXYZRGB>::Ptr extracted_cloud;
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
+
+    pcl::visualization::CloudViewer viewer1("Cluster viewer");
+    viewer1.showCloud(colored_cloud);
+    while(!viewer1.wasStopped ()) {
+    }
 
     std::cout << "Num of Points : " << colored_cloud->points.size() << std::endl;
     int i=0;
