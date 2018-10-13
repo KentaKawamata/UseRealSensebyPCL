@@ -14,16 +14,33 @@
 #include <pcl/Vertices.h>
 
 
-float Volume(float p1, float p2, float p3) {
+float calcVolume(pcl::PointXYZ  p1, pcl::PointXYZ p2, pcl::PointXYZ p3) {
 
-    float v321 = p3.X*p2.Y*p1.Z;
-    float v231 = p2.X*p3.Y*p1.Z;
-    float v312 = p3.X*p1.Y*p2.Z;
-    float v132 = p1.X*p3.Y*p2.Z;
-    float v213 = p2.X*p1.Y*p3.Z;
-    float v123 = p1.X*p2.Y*p3.Z;
+    /*
+     * http://chenlab.ece.cornell.edu/Publication/Cha/icip01_Cha.pdf
+     */
+    float x1 = p1._PointXYZ::data[0];
+    float y1 = p1._PointXYZ::data[1];
+    float z1 = p1._PointXYZ::data[2];
 
-    return (1.0f/6.0f)*(-v321 + v231 + v312 - v132 - v213 + v123);
+    float x2 = p2._PointXYZ::data[0];
+    float y2 = p2._PointXYZ::data[1];
+    float z2 = p2._PointXYZ::data[2];
+
+    float x3 = p3._PointXYZ::data[0];
+    float y3 = p3._PointXYZ::data[1];
+    float z3 = p3._PointXYZ::data[2];
+
+    float V321 = x3*y2*z1;
+    float V231 = x2*y3*z1;
+    float V312 = x3*y1*z2;
+    float V132 = x1*y3*z2;
+    float V213 = x2*y1*z3;
+    float V123 = x1*y2*z3;
+
+    float volume = (1.0f/6.0f)*(-V321 +V231 +V312 -V132 -V213 +V123);
+
+    return volume;
 }
 
 int main(int argc, char *argv[]) {
@@ -83,16 +100,22 @@ int main(int argc, char *argv[]) {
      */
     pcl::fromPCLPointCloud2(mesh.cloud, *vertices);
 
+    float Volume=0;
+    float VolumeAll=0;
+
     // access each vertex
-    for(int i=0; i<vertices->size(); i++) {
+    for(int i=0; i<vertices->size(); i+=3) {
 
-        pcl::PointXYZ v = vertices->points[i];
+        pcl::PointXYZ p1 = vertices->points[i];
+        pcl::PointXYZ p2 = vertices->points[i + 1];
+        pcl::PointXYZ p3 = vertices->points[i + 2];
 
-        float x = v._PointXYZ::data[0];
-        float y = v._PointXYZ::data[1];
-        float z = v._PointXYZ::data[2];
+        Volume = calcVolume(p1, p2, p3);
+        VolumeAll += Volume;
     }
 
+
+    //meshを表示
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
     viewer->setBackgroundColor (0, 0, 0);
     viewer->addPolygonMesh(mesh,"meshes",0);
