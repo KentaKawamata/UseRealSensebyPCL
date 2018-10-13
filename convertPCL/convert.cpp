@@ -121,6 +121,14 @@ void ConvertPCL::writePCDfile() {
         j+=3;
     }
 
+    // Create the filtering object
+i   pcl::PassThrough<pcl::PointXYZ> pass;
+    pass.setInputCloud(cloud);
+    pass.setFilterFieldName("z");
+    pass.setFilterLimits(0.0, 10.0);
+    pass.setFilterLimitsNegative(true);
+    pass.filter(*cloud);
+
     pcl::io::savePCDFileASCII("test_pcd.pcd", cloud);
     std::cerr << "Saved " << cloud.points.size() << " data points to test_pcd.pcd." << std::endl;
 

@@ -114,6 +114,7 @@ int main(int argc, char *argv[]) {
         VolumeAll += Volume;
     }
 
+    std::cout << "Volume = " << Volume << std::endl;
 
     //meshを表示
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));

@@ -15,7 +15,7 @@ main (int argc, char** argv)
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PCLPointCloud2 cloud_blob;
     pcl::io::loadPCDFile ("./../downSampling/pcdFile/test_pcd.pcd", cloud_blob);
-    pcl::fromPCLPointCloud2 (cloud_blob, *cloud);
+    pcl::fromPCLPointCloud2(cloud_blob, *cloud);
     //* the data should be available in cloud
 
     // Normal estimation*
@@ -42,8 +42,12 @@ main (int argc, char** argv)
     pcl::GreedyProjectionTriangulation<pcl::PointNormal> gp3;
     pcl::PolygonMesh triangles;
 
-    // Set the maximum distance between connected points (maximum edge length)
-    gp3.setSearchRadius (0.025);
+    /*
+     * Set the maximum distance between connected points (maximum edge length)
+     * 1, 0.025  No
+     *
+     */
+    gp3.setSearchRadius (0.1);
 
     // Set typical values for the parameters
     gp3.setMu (2.5);
