@@ -35,7 +35,10 @@ private:
     int color_height_ = 480;
     int depth_width_ = 640;
     int depth_height_ = 480;
+    int width_ = 640;
+    int height_ = 480;
     int fps_ = 30;
+    int count_=0;
 
     //colorとdepthのframe合わせ
     rs2::frameset aligned_frames;

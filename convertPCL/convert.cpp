@@ -64,8 +64,7 @@ void ConvertPCL::pointToPCL() {
     cloudXYZ.points.resize(points.size());
 
     auto ptr = points.get_vertices();
-    for (auto& p : cloudXYZ.points)
-    {
+    for (auto& p : cloudXYZ.points) {
         p.x = ptr->x;
         p.y = ptr->y;
         p.z = ptr->z;
@@ -79,7 +78,7 @@ void ConvertPCL::setAligned_frames() {
     rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
     aligned_frames = align.process(frameset);
-    if( !aligned_frames.size() ){
+    if( !aligned_frames.size() ) {
         std::cout << "NO" << std::endl;
         return;
     }
@@ -121,21 +120,16 @@ void ConvertPCL::writePCDfile() {
         j+=3;
     }
 
-    // Create the filtering object
-i   pcl::PassThrough<pcl::PointXYZ> pass;
-    pass.setInputCloud(cloud);
-    pass.setFilterFieldName("z");
-    pass.setFilterLimits(0.0, 10.0);
-    pass.setFilterLimitsNegative(true);
-    pass.filter(*cloud);
-
-    pcl::io::savePCDFileASCII("test_pcd.pcd", cloud);
-    std::cerr << "Saved " << cloud.points.size() << " data points to test_pcd.pcd." << std::endl;
+    std::string num = std::to_string(count_);
+    std::string filename = "PointCloudFile_" + num + ".pcd";
+    pcl::io::savePCDFileASCII(filename, cloud);
+    std::cerr << "Saved " << cloud.points.size() << " data points to " << filename << " File." << std::endl;
 
 }
 
 void ConvertPCL::run(){
 
+    count_=0;
     while(true){
         updateFrame();
         draw();
@@ -144,6 +138,7 @@ void ConvertPCL::run(){
         const int key = cv::waitKey(20);
         if(key=='s'){
             writePCDfile();
+            count_++;
         }
         else if(key==27){
             cv::destroyAllWindows();
