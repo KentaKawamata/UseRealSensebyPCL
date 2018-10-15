@@ -6,7 +6,7 @@
 
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rs_advanced_mode.hpp>
-#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 #include <opencv2/opencv.hpp>
 

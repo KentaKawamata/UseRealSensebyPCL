@@ -32,9 +32,13 @@ void viewerPsycho (pcl::visualization::PCLVisualizer& viewer) {
 }
 
 int main(char argc, char *argv[]) {
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
+
+    std::string filename = argv[1];
+    std::cout << filename << std::endl;
+
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA);
    // pcl::io::loadPLYFile ("_2354.ply", *cloud);
-   pcl::io::loadPCDFile ("./../RemoveNoise/test_lms400_inliers.pcd", *cloud);
+   pcl::io::loadPLYFile (filename, *cloud);
 
     pcl::visualization::CloudViewer viewer("Cloud Viewer");
 
