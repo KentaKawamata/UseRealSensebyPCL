@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(SOURCE_NAME
-        main.cpp
-        convert.cpp
-        convert.hpp)
+        mergeCloud.cpp)
 
 function(Flag flag init_flag flag_message)
     if(NOT DEFINED ${flag})
