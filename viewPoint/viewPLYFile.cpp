@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
     Eigen::Matrix4f R = Eigen::Matrix4f::Identity();
 
     // Define a rotation matrix (see https://en.wikipedia.org/wiki/Rotation_matrix)
-    double theta = 90; // The angle of rotation in radians
-    R (0,0) = cos(theta);
-    R (0,1) = -1*sin(theta);
-    R (1,0) = sin(theta);
+    double theta = -45;
     R (1,1) = cos(theta);
+    R (1,2) = -1*sin(theta);
+    R (2,1) = sin(theta);
+    R (2,2) = cos(theta);
 
     pcl::transformPointCloud(*cloud, *transed_cloud, R);
 
