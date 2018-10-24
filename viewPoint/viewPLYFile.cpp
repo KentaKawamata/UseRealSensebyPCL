@@ -2,6 +2,7 @@
 // Created by kawa on 10/21/18.
 //
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
 #include <iostream>
 #include <pcl/io/io.h>
 #include <pcl/io/ply_io.h>
@@ -24,6 +25,14 @@ void viewerPsycho(pcl::visualization::PCLVisualizer& viewer) {
 
     //FIXME: possible race condition here:
     user_data++;
+}
+
+void keyboardEvent(const pcl::visualization::KeyboardEvent &event,void *nothing){
+
+    if(event.getKeySym() == "space" && event.keyDown()){
+        std::cout << "---------- PUSH SPACE !!!!! ----------" << std::endl;
+    }
+        //next_iteration = true;
 }
 
 int main(int argc, char *argv[]) {
@@ -55,8 +64,18 @@ int main(int argc, char *argv[]) {
 
     pcl::transformPointCloud(*cloud, *transed_cloud, R);
 
-    pcl::visualization::CloudViewer viewer("Cloud Viewer");
+    boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_test (new pcl::visualization::PCLVisualizer ("3D Viewer"));
 
+    viewer_test->setBackgroundColor(0, 0, 0);
+    //pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(tra);
+    viewer_test->addPointCloud<pcl::PointXYZRGB>(transed_cloud, "sample cloud");
+    viewer_test->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
+    viewer_test->addCoordinateSystem(1.0);
+    viewer_test->initCameraParameters();
+    viewer_test->registerKeyboardCallback(&keyboardEvent, (void*)NULL);
+
+    /*
+    pcl::visualization::CloudViewer viewer("Cloud Viewer");
     //blocks until the cloud is actually rendered
     viewer.showCloud(transed_cloud);
 
@@ -68,12 +87,19 @@ int main(int argc, char *argv[]) {
 
     //This will get called once per visualization iteration
     viewer.runOnVisualizationThread (viewerPsycho);
-    while (!viewer.wasStopped ()) {
+
+    viewer.registerKeyboardCallback(&keyboardEvent, (void*)NULL);
+    */
+
+    while (!viewer_test->wasStopped()) {
+
+        viewer_test->spinOnce(100);
+        boost::this_thread::sleep (boost::posix_time::microseconds (100000));
 
         //you can also do cool processing here
         //FIXME: Note that this is running in a separate thread from viewerPsycho
         //and you should guard against race conditions yourself...
-        user_data++;
+        //user_data++;
     }
     return 0;
 }
