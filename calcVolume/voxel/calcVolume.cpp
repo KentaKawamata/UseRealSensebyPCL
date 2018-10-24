@@ -9,8 +9,31 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/visualization/cloud_viewer.h>
 
-float calucDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::PointXYZRGB> samePoints){
+float calcDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::PointXYZRGB> samePoints, int num){
 
+    float zMax=0;
+    float zMin=10000;
+
+    for(int i=0; i<samePoints.points.size(); i++){
+
+        if(zMax < samePoints.points[i].z){
+            zMax = samePoints.points[i].z;
+        }
+        if(zMin > samePoints.points[i].z){
+            zMin = samePoints.points[i].z;
+        }
+    }
+
+    if(zMax < cloud.points[num].z){
+        zMax = cloud.points[num].z;
+    }
+    else if(zMin > cloud.points[num].z){
+        zMin = cloud.points[num].z;
+    }
+
+    float zDiff = zMax - zMin;
+
+    return zDiff;
 }
 
 bool findIndex(int num, std::vector<int> index){
@@ -53,12 +76,14 @@ int main(int argc, char *argv[]) {
             }
             j++;
         }
+
         if(samePoints->points.size()==1){
+
             float diff = std::abs(cloud->points[i].z - samePoints->points[0].z);
             diffZ.push_back(diff);
         }
         else if(samePoints->points.size()>1){
-
+            diffZ.push_back(calcDiff(*cloud, *samePoints, i));
         } else {
             continue;
         }
