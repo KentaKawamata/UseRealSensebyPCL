@@ -31,14 +31,14 @@ void viewerPsycho (pcl::visualization::PCLVisualizer& viewer) {
     user_data++;
 }
 
-int main(char argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
     std::string filename = argv[1];
     std::cout << filename << std::endl;
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGBA);
-   // pcl::io::loadPLYFile ("_2354.ply", *cloud);
-   pcl::io::loadPLYFile (filename, *cloud);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+    // pcl::io::loadPLYFile ("_2354.ply", *cloud);
+    pcl::io::loadPLYFile (filename, *cloud);
 
     pcl::visualization::CloudViewer viewer("Cloud Viewer");
 
