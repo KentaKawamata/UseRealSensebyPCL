@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 set(SOURCE_NAME
-        main.cpp
-        convert.cpp
-        convert.hpp)
+        main.cpp)
 
 function(Flag flag init_flag flag_message)
     if(NOT DEFINED ${flag})
@@ -127,7 +125,7 @@ if(USE_ZED)
 
     endif(ZED_FOUND)
 
-    TARGET_LINK_LIBRARIES(${execName}
+    TARGET_LINK_LIBRARIES(${PROJECT_NAME}
         ${ZED_LIBRARIES}
         ${CUDA_CUDA_LIBRARY} ${CUDA_CUDART_LIBRARY} ${CUDA_NPP_LIBRARIES_ZED} )
 
