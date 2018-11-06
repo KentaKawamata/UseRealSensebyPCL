@@ -9,18 +9,29 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/visualization/cloud_viewer.h>
 
-float calcDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::PointXYZRGB> samePoints, int num){
+/*
+ * 複数ある点群から最大値を持つ点と最小値を持つ点を抽出し,差分計算
+ * zMax : 最大値を持つ点
+ * zMin : 最小値を持つ点 
+ */
+float selectDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::PointXYZRGB> samePoints, int num){
 
     float zMax=0;
-    float zMin=10000;
+    float zMin=0;
 
-    for(int i=0; i<samePoints.points.size(); i++){
+    for(auto point : samePoints.points){
 
-        if(zMax < samePoints.points[i].z){
-            zMax = samePoints.points[i].z;
+        if(zMax < point.z){
+            zMax = point.z;
         }
-        if(zMin > samePoints.points[i].z){
-            zMin = samePoints.points[i].z;
+        else if(zMin > point.z){
+            zMin = point.z;
+        }
+
+        if(zMax < zMin){
+            float tmp = zMax;
+            zMax = zMin;
+            zMin = tmp;
         }
     }
 
@@ -34,6 +45,14 @@ float calcDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::Poi
     float zDiff = zMax - zMin;
 
     return zDiff;
+}
+
+/*
+ * ２つの点群の差分を計算
+ */
+float calcDiff(float z1, float z2){
+
+    return std::abs(z1-z2);
 }
 
 bool findIndex(int num, std::vector<int> index){
@@ -83,7 +102,7 @@ int main(int argc, char *argv[]) {
             diffZ.push_back(diff);
         }
         else if(samePoints->points.size()>1){
-            diffZ.push_back(calcDiff(*cloud, *samePoints, i));
+            diffZ.push_back(selectDiff(*cloud, *samePoints, i));
         } else {
             continue;
         }
