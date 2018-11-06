@@ -14,7 +14,7 @@
  * zMax : 最大値を持つ点
  * zMin : 最小値を持つ点 
  */
-float selectDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::PointXYZRGB> samePoints, int num){
+float selectDiff(float cloudPoint, pcl::PointCloud<pcl::PointXYZRGB> samePoints){
 
     float zMax=0;
     float zMin=0;
@@ -35,26 +35,26 @@ float selectDiff(pcl::PointCloud<pcl::PointXYZRGB> cloud, pcl::PointCloud<pcl::P
         }
     }
 
-    if(zMax < cloud.points[num].z){
-        zMax = cloud.points[num].z;
+    if(zMax < cloudPoint){
+        zMax = cloudPoint;
     }
-    else if(zMin > cloud.points[num].z){
-        zMin = cloud.points[num].z;
+    else if(zMin > cloudPoint){
+        zMin = cloudPoint;
     }
 
-    float zDiff = zMax - zMin;
-
-    return zDiff;
+    return std::abs(zMax - zMin);
 }
 
 /*
  * ２つの点群の差分を計算
  */
 float calcDiff(float z1, float z2){
-
     return std::abs(z1-z2);
 }
 
+/*
+ * すでに計算済みのxy座標に存在する点群を探す
+ */ 
 bool findIndex(int num, std::vector<int> index){
 
     auto sameNum = std::find(index.begin(), index.end(), num);
@@ -74,6 +74,7 @@ int main(int argc, char *argv[]) {
 
     std::vector<float> diffZ;
     std::vector<float> volume;
+    // 一度計算に使用した点のインデックスjを格納していく
     std::vector<int> index;
 
     for(int i=0; i<cloud->points.size(); i++){
@@ -86,23 +87,19 @@ int main(int argc, char *argv[]) {
         float y = cloud->points[i].y;
 
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr samePoints (new pcl::PointCloud<pcl::PointXYZRGB>);
-        int j=0;
-        while(j<cloud->points.size()){
+        for(int j=0; j<cloud->points.size(); j++){
 
-            if(cloud->points[j].x==x && cloud->points[j].y==y){
+            if( (cloud->points[j].x==x && cloud->points[j].y==y) && j!=i){
                 samePoints->points.push_back(cloud->points[j]);
                 index.push_back(j);
             }
-            j++;
         }
 
         if(samePoints->points.size()==1){
-
-            float diff = std::abs(cloud->points[i].z - samePoints->points[0].z);
-            diffZ.push_back(diff);
+            diffZ.push_back(calcDiff(cloud->points[i].z, samePoints->points[0].z));
         }
-        else if(samePoints->points.size()>1){
-            diffZ.push_back(selectDiff(*cloud, *samePoints, i));
+        else if(samePoints->points.size()>=2){
+            diffZ.push_back(selectDiff(cloud->points[i].z, *samePoints));
         } else {
             continue;
         }
