@@ -2,6 +2,7 @@
 // Created by kawa on 10/7/18.
 //
 #include <iostream>
+#include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/filters/voxel_grid.h>
@@ -15,7 +16,7 @@ int main (int argc, char *argv[]) {
   std::string filename(argv[1]);
 
   // Fill in the cloud data
-  pcl::PCDReader reader;
+  pcl::PLYReader reader;
   // Replace the path below with the path where you saved your file
   reader.read (filename, *cloud); // Remember to download the file first!
 
@@ -31,9 +32,11 @@ int main (int argc, char *argv[]) {
   std::cerr << "PointCloud after filtering: " << cloud_filtered->width * cloud_filtered->height
        << " data points (" << pcl::getFieldsList (*cloud_filtered) << ")." << std::endl;
 
-  pcl::PCDWriter writer;
-  writer.write ("test_voxel.pcd", *cloud_filtered,
+  pcl::PLYWriter writer;
+  writer.write ("test_voxel.ply", cloud_filtered, \
          Eigen::Vector4f::Zero (), Eigen::Quaternionf::Identity (), false);
+  //writer.write<pcl::PointXYZRGB>("test_voxel.ply", *cloud_filtered, false);
+  //pcl::io::savePLYFileBinary("test_voxel.ply", cloud_filtered);
 
   return (0);
 }
