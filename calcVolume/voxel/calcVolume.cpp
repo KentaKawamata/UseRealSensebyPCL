@@ -65,6 +65,23 @@ bool findIndex(int num, std::vector<int> index){
     }
 }
 
+/*
+ * 体積計算
+ * voxel : voxel一辺の長さ(m)
+ * volume = voxel * voxel * diff
+ */ 
+float calcVolume(std::vector<float> diffs) {
+
+    // 1cm(0.01m)
+    float voxel = 0.01;
+    float volume=0;
+
+    for(auto diff : diffs){
+        volume += diff*voxel*voxel;
+    }
+    return volume;
+}
+
 int main(int argc, char *argv[]) {
 
     std::string filename(argv[1]);
@@ -73,7 +90,6 @@ int main(int argc, char *argv[]) {
     pcl::io::loadPLYFile (filename, *cloud);
 
     std::vector<float> diffZ;
-    std::vector<float> volume;
     // 一度計算に使用した点のインデックスjを格納していく
     std::vector<int> index;
 
@@ -104,6 +120,9 @@ int main(int argc, char *argv[]) {
             continue;
         }
     }
+
+    float volume = calcVolume(diffZ);
+    std::cout << "volume : " << volume << std::endl; 
 
     return 0;
 }
