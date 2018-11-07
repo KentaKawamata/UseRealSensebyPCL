@@ -4,6 +4,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <iostream>
+#include <cmath>
 #include <pcl/io/io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/common/transforms.h>
@@ -48,11 +49,13 @@ int main(int argc, char *argv[]) {
     Eigen::Matrix4f R = Eigen::Matrix4f::Identity();
 
     // Define a rotation matrix (see https://en.wikipedia.org/wiki/Rotation_matrix)
-    double theta = std::stod(argv[2]);
+    double theta = std::stod(argv[2]) / 180 * M_PI;
     R (1,1) = cos(theta);
     R (1,2) = -1*sin(theta);
     R (2,1) = sin(theta);
     R (2,2) = cos(theta);
+
+    std::cout << R << std::endl;
 
     pcl::transformPointCloud(*cloud, *transed_cloud, R);
 
