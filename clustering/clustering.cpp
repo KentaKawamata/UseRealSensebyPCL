@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
+#include <pcl/io/ply_io.h>
 #include <pcl/search/search.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/features/normal_3d.h>
@@ -14,10 +14,12 @@
 #include <pcl/segmentation/region_growing.h>
 #include <pcl/filters/extract_indices.h>
 
-int main(int argc, char** argv) {
+int main(int argc, char *argv[]) {
 
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    if( pcl::io::loadPCDFile <pcl::PointXYZ> ("./../downSampling/pcdFile/test_downsampled.pcd", *cloud) == -1) {
+
+    std::string filename(argv[1]);
+    if( pcl::io::loadPLYFile <pcl::PointXYZ> (filename, *cloud) == -1) {
 
         std::cout << "Cloud reading failed." << std::endl;
         return -1;
