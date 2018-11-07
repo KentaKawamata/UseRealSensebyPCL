@@ -27,14 +27,6 @@ void viewerPsycho(pcl::visualization::PCLVisualizer& viewer) {
     user_data++;
 }
 
-void keyboardEvent(const pcl::visualization::KeyboardEvent &event,void *nothing){
-
-    if(event.getKeySym() == "space" && event.keyDown()){
-        std::cout << "---------- PUSH SPACE !!!!! ----------" << std::endl;
-    }
-        //next_iteration = true;
-}
-
 int main(int argc, char *argv[]) {
 
     std::string filename(argv[1]);
@@ -56,7 +48,7 @@ int main(int argc, char *argv[]) {
     Eigen::Matrix4f R = Eigen::Matrix4f::Identity();
 
     // Define a rotation matrix (see https://en.wikipedia.org/wiki/Rotation_matrix)
-    double theta = -45;
+    double theta = std::stod(argv[2]);
     R (1,1) = cos(theta);
     R (1,2) = -1*sin(theta);
     R (2,1) = sin(theta);
@@ -72,24 +64,6 @@ int main(int argc, char *argv[]) {
     viewer_test->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 3, "sample cloud");
     viewer_test->addCoordinateSystem(1.0);
     viewer_test->initCameraParameters();
-    viewer_test->registerKeyboardCallback(&keyboardEvent, (void*)NULL);
-
-    /*
-    pcl::visualization::CloudViewer viewer("Cloud Viewer");
-    //blocks until the cloud is actually rendered
-    viewer.showCloud(transed_cloud);
-
-    //use the following functions to get access to the underlying more advanced/powerful
-    //PCLVisualizer
-
-    //This will only get called once
-    viewer.runOnVisualizationThreadOnce (viewerOneOff);
-
-    //This will get called once per visualization iteration
-    viewer.runOnVisualizationThread (viewerPsycho);
-
-    viewer.registerKeyboardCallback(&keyboardEvent, (void*)NULL);
-    */
 
     while (!viewer_test->wasStopped()) {
 
