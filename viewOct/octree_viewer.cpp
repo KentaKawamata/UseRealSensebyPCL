@@ -95,7 +95,7 @@ public:
     octree.setInputCloud (cloud);
 
     // add points from cloud to octree
-    octree.addPointsFromInputCloud ();
+    octree.addPointsFromInputCloud();
 
     //show octree at default depth
     extractPointsAtLevel(displayedDepth);
@@ -135,63 +135,47 @@ private:
   /* \brief Callback to interact with the keyboard
    *
    */
-  void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event, void *)
-  {
+  void keyboardEventOccurred (const pcl::visualization::KeyboardEvent &event, void *){
 
-    if (event.getKeySym () == "a" && event.keyDown ())
-    {
-      IncrementLevel ();
-    }
-    else if (event.getKeySym () == "z" && event.keyDown ())
-    {
-      DecrementLevel ();
-    }
-    else if (event.getKeySym () == "v" && event.keyDown ())
-    {
-      show_cubes_ = !show_cubes_;
-      update ();
-    }
-    else if (event.getKeySym () == "b" && event.keyDown ())
-    {
-      show_centroids_ = !show_centroids_;
-      update ();
-    }
-    else if (event.getKeySym () == "n" && event.keyDown ())
-    {
-      show_original_points_ = !show_original_points_;
-      update ();
-    }
-    else if (event.getKeySym () == "w" && event.keyDown ())
-    {
-      if (!wireframe)
-        wireframe = true;
-      update ();
-    }
-    else if (event.getKeySym () == "s" && event.keyDown ())
-    {
-      if (wireframe)
-        wireframe = false;
-      update ();
-    }
-    else if ((event.getKeyCode () == '-') && event.keyDown ())
-    {
-      point_size_ = std::max(1.0f, point_size_ * (1 / 2.0f));
-      update ();
-    }
-    else if ((event.getKeyCode () == '+') && event.keyDown ())
-    {
-      point_size_ *= 2.0f;
-      update ();
-    }
+      if (event.getKeySym () == "a" && event.keyDown ()){
+          IncrementLevel ();
+      } else if (event.getKeySym () == "z" && event.keyDown ()){
+          DecrementLevel ();
+      } else if (event.getKeySym () == "v" && event.keyDown ()){
+          show_cubes_ = !show_cubes_;
+          update ();
+      } else if (event.getKeySym () == "b" && event.keyDown ()){
+          show_centroids_ = !show_centroids_;
+          update ();
+      } else if (event.getKeySym () == "n" && event.keyDown ()){
+          show_original_points_ = !show_original_points_;
+          update ();
+      } else if (event.getKeySym () == "w" && event.keyDown ()){
+          if (!wireframe){
+              wireframe = true;
+          }
+          update ();
+      } else if (event.getKeySym () == "s" && event.keyDown ()){
+          if (wireframe){
+              wireframe = false;
+          }
+          update ();
+      } else if ((event.getKeyCode () == '-') && event.keyDown ()){
+          point_size_ = std::max(1.0f, point_size_ * (1 / 2.0f));
+          update ();
+      } else if ((event.getKeyCode () == '+') && event.keyDown ()){
+          point_size_ *= 2.0f;
+          update ();
+      }
+
   }
 
   /* \brief Graphic loop for the viewer
    *
    */
-  void run()
-  {
-    while (!viz.wasStopped())
-    {
+  void run(){
+
+    while (!viz.wasStopped()){
       //main loop of the visualizer
       viz.spinOnce(100);
       boost::this_thread::sleep(boost::posix_time::microseconds(100000));
@@ -257,45 +241,49 @@ private:
   /* \brief Visual update. Create visualizations and add them to the viewer
    *
    */
-  void update()
-  {
+  void update(){
+
     //remove existing shapes from visualizer
     clearView ();
 
     showLegend ();
 
-    if (show_cubes_)
-    {
+    if (show_cubes_){
       //show octree as cubes
-      showCubes (std::sqrt (octree.getVoxelSquaredSideLen (displayedDepth)));
+      /*
+       * getVoxelSquaredSideLen
+       * 単位ボクセル1辺の二乗(ボクセルの面)を返す
+       * 1辺の長さが欲しいのでsqrtでルートをかけている
+       */
+      showCubes (std::sqrt(octree.getVoxelSquaredSideLen(displayedDepth)));
     }
 
-    if (show_centroids_)
-    {
+    if (show_centroids_){
       //show centroid points
       pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler (cloudVoxel, "x");
       viz.addPointCloud (cloudVoxel, color_handler, "cloud_centroid");
       viz.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size_, "cloud_centroid");
     }
 
-    if (show_original_points_)
-    {
+    if (show_original_points_){
       //show origin point cloud
       pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZ> color_handler (cloud, "z");
       viz.addPointCloud (cloud, color_handler, "cloud");
       viz.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size_, "cloud");
     }
+
   }
 
   /* \brief remove dynamic objects from the viewer
    *
    */
-  void clearView()
-  {
+  void clearView(){
+
     //remove cubes if any
-    vtkRenderer *renderer = viz.getRenderWindow ()->GetRenderers ()->GetFirstRenderer ();
-    while (renderer->GetActors ()->GetNumberOfItems () > 0)
-      renderer->RemoveActor (renderer->GetActors ()->GetLastActor ());
+    vtkRenderer *renderer = viz.getRenderWindow()->GetRenderers()->GetFirstRenderer();
+    while(renderer->GetActors()->GetNumberOfItems() > 0){
+      renderer->RemoveActor(renderer->GetActors()->GetLastActor());
+    }
     //remove point clouds if any
     viz.removePointCloud ("cloud");
     viz.removePointCloud ("cloud_centroid");
@@ -305,34 +293,33 @@ private:
   /* \brief display octree cubes via vtk-functions
    *
    */
-  void showCubes(double voxelSideLen)
-  {
-    vtkSmartPointer<vtkAppendPolyData> appendFilter = vtkSmartPointer<vtkAppendPolyData>::New ();
+  void showCubes(double voxelSideLen){
 
+    vtkSmartPointer<vtkAppendPolyData> appendFilter = vtkSmartPointer<vtkAppendPolyData>::New ();
     // Create every cubes to be displayed
     double s = voxelSideLen / 2.0;
-    for (size_t i = 0; i < cloudVoxel->points.size (); i++)
-    {
+    
+    for (size_t i = 0; i < cloudVoxel->points.size (); i++){
+
       double x = cloudVoxel->points[i].x;
       double y = cloudVoxel->points[i].y;
       double z = cloudVoxel->points[i].z;
 
       vtkSmartPointer<vtkCubeSource> wk_cubeSource = vtkSmartPointer<vtkCubeSource>::New ();
 
-      wk_cubeSource->SetBounds (x - s, x + s, y - s, y + s, z - s, z + s);
-      wk_cubeSource->Update ();
+      wk_cubeSource->SetBounds(x-s, x+s, y-s, y+s, z-s, z+s);
+      wk_cubeSource->Update();
 
-#if VTK_MAJOR_VERSION < 6
+      /*
+       *生成したvoxelを足していく
+       */
       appendFilter->AddInput (wk_cubeSource->GetOutput ());
-#else
-      appendFilter->AddInputData (wk_cubeSource->GetOutput ());
-#endif
     }
 
     // Remove any duplicate points
     vtkSmartPointer<vtkCleanPolyData> cleanFilter = vtkSmartPointer<vtkCleanPolyData>::New ();
 
-    cleanFilter->SetInputConnection (appendFilter->GetOutputPort ());
+    cleanFilter->SetInputConnection (appendFilter->GetOutputPort());
     cleanFilter->Update ();
 
     //Create a mapper and actor
@@ -350,20 +337,17 @@ private:
     multiActor->GetProperty ()->EdgeVisibilityOn ();
     multiActor->GetProperty ()->SetOpacity (1.0);
 
-    if (wireframe)
-    {
+    if (wireframe){
       multiActor->GetProperty ()->SetRepresentationToWireframe ();
-    }
-    else
-    {
+    } else {
       multiActor->GetProperty ()->SetRepresentationToSurface ();
     }
 
     // Add the actor to the scene
-    viz.getRenderWindow ()->GetRenderers ()->GetFirstRenderer ()->AddActor (multiActor);
+    viz.getRenderWindow()->GetRenderers()->GetFirstRenderer()->AddActor(multiActor);
 
     // Render and interact
-    viz.getRenderWindow ()->Render ();
+    viz.getRenderWindow()->Render();
   }
 
   /* \brief Extracts all the points of depth = level from the octree
