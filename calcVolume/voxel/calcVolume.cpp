@@ -14,6 +14,9 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 
+// 1cm(0.01m)
+float voxel = 0.02;
+
 /*
  * 複数ある点群から最大値を持つ点と最小値を持つ点を抽出し,差分計算
  * zMax : 最大値を持つ点
@@ -54,7 +57,14 @@ inline float selectDiff(float cloudPoint, pcl::PointCloud<pcl::PointXYZRGB> same
  * ２つの点群の差分を計算
  */
 inline float calcDiff(float z1, float z2){
-    return std::abs(z1-z2);
+    
+    float diff = std::abs(z1-z2);
+    
+    if(diff <= voxel*1.1){
+        return 0.0;
+    } else {
+        return diff;
+    }
 }
 
 /*
@@ -77,11 +87,10 @@ inline bool findIndex(int num, std::vector<int> index){
  */ 
 float calcVolume(std::vector<float> diffs) {
 
-    // 1cm(0.01m)
-    float voxel = 0.05;
     float volume=0;
 
     for(auto diff : diffs){
+        std::cout << diff*voxel*voxel << std::endl;
         volume += diff*voxel*voxel;
     }
     return volume;
