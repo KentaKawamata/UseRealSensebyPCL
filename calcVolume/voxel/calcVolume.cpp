@@ -15,7 +15,7 @@
 #include <Eigen/LU>
 
 // 1cm(0.01m)
-float voxel = 0.02;
+float voxel = 0.0128;
 
 /*
  * 複数ある点群から最大値を持つ点と最小値を持つ点を抽出し,差分計算
@@ -25,15 +25,16 @@ float voxel = 0.02;
 inline float selectDiff(float cloudPoint, pcl::PointCloud<pcl::PointXYZRGB> samePoints){
 
     float zMax=0;
-    float zMin=0;
+    float zMin=100;
+    //std::cout << "size : " << samePoints.points.size() << std::endl; 
 
     for(auto point : samePoints.points){
 
-        if(zMax < point.z){
-            zMax = point.z;
+        if(zMax < point.y){
+            zMax = point.y;
         }
-        else if(zMin > point.z){
-            zMin = point.z;
+        if(zMin > point.y){
+            zMin = point.y;
         }
 
         if(zMax < zMin){
@@ -50,7 +51,9 @@ inline float selectDiff(float cloudPoint, pcl::PointCloud<pcl::PointXYZRGB> same
         zMin = cloudPoint;
     }
 
-    return std::abs(zMax - zMin);
+    float diff = std::abs(zMax - zMin);
+
+    return diff;
 }
 
 /*
@@ -74,8 +77,10 @@ inline bool findIndex(int num, std::vector<int> index){
 
     auto sameNum = std::find(index.begin(), index.end(), num);
     if (sameNum != index.end()){
+        //点群が使用済みだった場合
         return false;
     } else {
+        //点群が使用前だった場合
         return true;
     }
 }
@@ -90,8 +95,8 @@ float calcVolume(std::vector<float> diffs) {
     float volume=0;
 
     for(auto diff : diffs){
-        std::cout << diff*voxel*voxel << std::endl;
-        volume += diff*voxel*voxel;
+        //std::cout << diff*voxel*voxel << std::endl;
+        volume = volume + (diff*voxel*voxel);
     }
     return volume;
 }
@@ -116,6 +121,7 @@ int main(int argc, char *argv[]) {
     R (2,2) = cos(theta);
 
     //pcl::transformPointCloud(*org_cloud, *cloud, R);
+    std::cout << "point size : " << cloud->points.size() << std::endl;
 
     for(int i=0; i<cloud->points.size(); i++){
 
@@ -134,7 +140,8 @@ int main(int argc, char *argv[]) {
                 index.push_back(j);
             }
         }
-
+        
+        index.push_back(i);
         if(samePoints->points.size()==1){
              diffZ.push_back(calcDiff(cloud->points[i].y, samePoints->points[0].y));
         }
