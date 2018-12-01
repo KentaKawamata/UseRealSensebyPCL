@@ -91,6 +91,7 @@ public:
 
     //set current level to half the maximum one
     displayedDepth = static_cast<int> (floor (octree.getTreeDepth() / 2.0));
+    std::cout << "displayedDepth : " << displayedDepth << std::endl;
     if (displayedDepth == 0)
       displayedDepth = 1;
 
@@ -215,7 +216,7 @@ private:
 
     Eigen::Matrix4f R = Eigen::Matrix4f::Identity();
 
-    double theta = -50.0 / 180.0 * M_PI;
+    double theta = -45.0 / 180.0 * M_PI;
     R (1,1) = cos(theta);
     R (1,2) = -1*sin(theta);
     R (2,1) = sin(theta);
@@ -409,7 +410,7 @@ private:
       pt_voxel_center.x = (voxel_min.x () + voxel_max.x ()) / 2.0f;
       pt_voxel_center.y = (voxel_min.y () + voxel_max.y ()) / 2.0f;
       pt_voxel_center.z = (voxel_min.z () + voxel_max.z ()) / 2.0f;
-      cloudVoxel->points.push_back (pt_voxel_center);
+      cloudVoxel->points.push_back(pt_voxel_center);
 
       // If the asked depth is the depth of the octree, retrieve the centroid at this LeafNode
       if (octree.getTreeDepth () == (unsigned int) depth)
@@ -437,6 +438,11 @@ private:
 
       displayCloud->points.push_back (pt_centroid);
     }
+
+    Eigen::Vector3f voxel_min, voxel_max;
+    octree.getVoxelBounds (octree.fixed_depth_begin(depth), voxel_min, voxel_max);
+    
+    std::cout << "reinoare : " << voxel_max.x()-voxel_min.x() << std::endl;
 
     double end = pcl::getTime ();
     printf("%lu pts, %.4gs. %.4gs./pt. =====\n", displayCloud->points.size (), end - start,
