@@ -121,7 +121,7 @@ void ConvertPCL::writePCDfile() {
     }
 
     std::string num = std::to_string(count_);
-    std::string filename = "PointCloudFile_" + num + ".ply";
+    std::string filename = "EstimateBase" + num + ".ply";
     //pcl::io::savePCDFileASCII(filename, cloud);
     pcl::io::savePLYFileASCII(filename, cloud);
     std::cerr << "Saved " << cloud.points.size() << " data points to " << filename << " File." << std::endl;
