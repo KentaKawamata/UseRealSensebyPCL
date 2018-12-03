@@ -31,12 +31,12 @@ private:
 
     cv::Mat color_mat_;
     cv::Mat depth_mat_;
-    int color_width_ = 640;
-    int color_height_ = 480;
-    int depth_width_ = 640;
-    int depth_height_ = 480;
-    int width_ = 640;
-    int height_ = 480;
+    int color_width_ = 1280;
+    int color_height_ = 720;
+    int depth_width_ = 1280;
+    int depth_height_ = 720;
+    int width_ = 1280;
+    int height_ = 720;
     int fps_ = 30;
     int count_=0;
 
