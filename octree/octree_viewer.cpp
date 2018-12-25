@@ -57,6 +57,11 @@
 #include <vtkRenderWindow.h>
 #include <vtkCubeSource.h>
 #include <vtkCleanPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkLineSource.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
 
 class OctreeViewer
 {
@@ -106,6 +111,7 @@ public:
 
     //reset camera
     viz.resetCameraViewpoint("cloud");
+    viz.setBackgroundColor(0.5,0.5,0.5);
 
     //run main loop
     run();
@@ -134,6 +140,13 @@ private:
   bool wireframe;
   bool show_cubes_, show_centroids_, show_original_points_;
   float point_size_;
+
+  double min_x;
+  double min_y;
+  double min_z;
+  double max_x;
+  double max_y;
+  double max_z;
   //========================================================
 
   /* \brief Callback to interact with the keyboard
@@ -202,29 +215,30 @@ private:
 
     std::cout << "Loading file " << filename.c_str() << std::endl;
     //read cloud
-    if (pcl::io::load (filename, *org_cloud))
+    if (pcl::io::load (filename, *cloud))
     {
       return false;
     }
 
+    /*
     pcl::PassThrough<pcl::PointXYZ> pass;
     pass.setInputCloud(org_cloud);
     pass.setFilterFieldName("z");
     pass.setFilterLimits(0.0, 3.0);
     //pass.setFilterLimitsNegative (true);
     pass.filter(*cloud);
-
+    */
     Eigen::Matrix4f R = Eigen::Matrix4f::Identity();
 
-    double theta = -45.0 / 180.0 * M_PI;
+    double theta = -44.5 / 180.0 * M_PI;
     R (1,1) = cos(theta);
     R (1,2) = -1*sin(theta);
     R (2,1) = sin(theta);
     R (2,2) = cos(theta);
 
-    std::cout << R << std::endl;
+    //std::cout << R << std::endl;
 
-    pcl::transformPointCloud(*cloud, *cloud, R);
+    //pcl::transformPointCloud(*cloud, *cloud, R);
 
     //remove NaN Points
     std::vector<int> nanIndexes;
@@ -307,7 +321,6 @@ private:
       viz.addPointCloud (cloud, color_handler, "cloud");
       viz.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size_, "cloud");
     }
-
   }
 
   /* \brief remove dynamic objects from the viewer
@@ -325,6 +338,48 @@ private:
     viz.removePointCloud ("cloud_centroid");
   }
 
+  void getMaxMin(){
+    
+    max_x = 0;
+    max_y = 0;
+    max_z = 0;
+    min_x = 0;
+    min_y = 0;
+    min_z = 0;
+
+    for(auto point : cloudVoxel->points){
+        if(max_z > point.z)
+            max_z = max_z;
+        else
+            max_z = point.z;
+
+        if(max_y > point.y)
+            max_y = max_y;
+        else
+            max_y = point.y;
+
+        if(max_x > point.x)
+            max_x = max_x;
+        else
+            max_x = point.x;
+
+        if(min_z < point.z)
+            min_z = min_z;
+        else
+            min_z = point.z;
+
+        if(min_y < point.y)
+            min_y = min_y;
+        else
+            min_y = point.y;
+
+        if(min_x < point.x)
+            min_x = min_x;
+        else
+            min_x = point.x;
+    }
+    std::cout << "end min-max PointCloud" << std::endl;
+  }
 
   /* \brief display octree cubes via vtk-functions
    *
@@ -335,7 +390,7 @@ private:
     // Create every cubes to be displayed
     double s = voxelSideLen / 2.0;
     
-    for (size_t i = 0; i < cloudVoxel->points.size (); i++){
+    for (size_t i = 0; i < cloudVoxel->points.size(); i++){
 
       double x = cloudVoxel->points[i].x;
       double y = cloudVoxel->points[i].y;
@@ -352,9 +407,59 @@ private:
       appendFilter->AddInput (wk_cubeSource->GetOutput ());
     }
 
+    getMaxMin();
+
+    for(double i=max_x+s; i>=min_x-s; i-=voxelSideLen){
+      for(double j=max_y+s; j>=min_y-s; j-=voxelSideLen){
+      
+        vtkSmartPointer<vtkLineSource> lineSource = vtkSmartPointer<vtkLineSource>::New();
+        double min = min_z-s;
+        double max = max_z+s;
+        double p0[3] = {i, j, min};
+        double p1[3] = {i, j, max};
+
+        lineSource->SetPoint1(p0);
+        lineSource->SetPoint2(p1);
+        lineSource->Update();
+      
+        appendFilter->AddInput (lineSource->GetOutput ());
+      }
+    }
+
+    for(double i=max_x+s; i>=min_x-s; i-=voxelSideLen){
+      for(double j=max_z+s; j>=min_z-s; j-=voxelSideLen){
+      
+        vtkSmartPointer<vtkLineSource> lineSource = vtkSmartPointer<vtkLineSource>::New();
+        double min = min_y-s;
+        double max = max_y+s;
+        double p0[3] = {i, max, j};
+        double p1[3] = {i, min, j};
+
+        lineSource->SetPoint1(p0);
+        lineSource->SetPoint2(p1);
+        lineSource->Update();
+        appendFilter->AddInput (lineSource->GetOutput ());
+      }
+    }
+
+    for(double i=max_z+s; i>=min_z-s; i-=voxelSideLen){
+      for(double j=max_y+s; j>=min_y-s; j-=voxelSideLen){
+      
+        vtkSmartPointer<vtkLineSource> lineSource = vtkSmartPointer<vtkLineSource>::New();
+        double min = min_x-s;
+        double max = max_x+s;
+        double p0[3] = {max, j, i};
+        double p1[3] = {min, j, i};
+
+        lineSource->SetPoint1(p0);
+        lineSource->SetPoint2(p1);
+        lineSource->Update();
+        appendFilter->AddInput (lineSource->GetOutput ());
+      }
+    }
+
     // Remove any duplicate points
     vtkSmartPointer<vtkCleanPolyData> cleanFilter = vtkSmartPointer<vtkCleanPolyData>::New ();
-
     cleanFilter->SetInputConnection (appendFilter->GetOutputPort());
     cleanFilter->Update ();
 
@@ -376,6 +481,7 @@ private:
     if (wireframe){
       multiActor->GetProperty ()->SetRepresentationToWireframe ();
     } else {
+      multiActor->GetProperty ()->SetRepresentationToWireframe ();
       multiActor->GetProperty ()->SetRepresentationToSurface ();
     }
 
@@ -384,6 +490,7 @@ private:
 
     // Render and interact
     viz.getRenderWindow()->Render();
+    //viz.addCoordinateSystem();
   }
 
   /* \brief Extracts all the points of depth = level from the octree
@@ -396,7 +503,7 @@ private:
 
     pcl::PointXYZ pt_voxel_center;
     pcl::PointXYZ pt_centroid;
-    std::cout << "===== Extracting data at depth " << depth << "... " << std::flush;
+    std::cout << "===== Extracting data at depth " << depth << "... " << std::endl;
     double start = pcl::getTime ();
 
     for (pcl::octree::OctreePointCloudVoxelCentroid<pcl::PointXYZ>::FixedDepthIterator tree_it = octree.fixed_depth_begin (depth);
