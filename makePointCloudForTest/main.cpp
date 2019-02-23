@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
     uint32_t rgb = ((uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)b);
     
 
+    /*
     for(float i=0; i<=0.5; i+=0.05){
         for(float j=0; j<0.5; j+=0.05){
             pcl::PointXYZRGB point1;
@@ -47,7 +48,23 @@ int main(int argc, char *argv[]) {
             cloud->points.push_back(point2);
         }
     }
+    */
 
+
+    for(float i=-4.50; i<=4.50; i+=0.005){
+        for(float j=0.0; j<=5.0; j+=0.005){
+            pcl::PointXYZRGB point;
+            point.rgb = *reinterpret_cast<float*>(&rgb);
+
+            point.x = i;
+            point.z = j;
+            point.y = 0.0;
+
+            cloud->points.push_back(point);
+        }
+    }
+
+    /*
     for(float i=0; i<=0.5; i+=0.05){
         for(float j=0; j<0.5; j+=0.05){
             pcl::PointXYZRGB point3;
@@ -84,7 +101,7 @@ int main(int argc, char *argv[]) {
             cloud->points.push_back(point6);
         }
     }
-
+    */
     boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer_test (new pcl::visualization::PCLVisualizer ("3D Viewer"));
 
     viewer_test->setBackgroundColor(0, 0, 0);
@@ -101,7 +118,7 @@ int main(int argc, char *argv[]) {
         boost::this_thread::sleep (boost::posix_time::microseconds (100000));
 
         if(signal == true){
-            pcl::io::savePLYFileASCII("test_cube.ply", *cloud);
+            pcl::io::savePLYFileASCII("before.ply", *cloud);
             std::cout << "SAVE PLY FILE" << std::endl;
             signal = false;
         }
